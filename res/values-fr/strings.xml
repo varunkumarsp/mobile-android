@@ -47,6 +47,12 @@
     <string name="AddFolder">Nouveau Dossier</string>
     <string name="Send">Envoyer</string>
     <string name="Paste">Coller</string>
+    <string name="ShareLink">Partager le lien</string>
+    <string name="ShareFile">Partager le fichier</string>
+    <string name="EmailSubject">Je partage:</string>
+    <string name="EmailMessageLink">Lien à télécharger:</string>
+    <string name="EmailMessageAtach">Fichier:</string>
+    <string name="IntentTitle">Partager via</string>
     <string name="Upload">Envoi</string>
     <string name="Cancel">Annuler</string>
     <string name="OK">OK</string>

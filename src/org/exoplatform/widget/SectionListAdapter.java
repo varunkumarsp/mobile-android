@@ -150,7 +150,8 @@ public class SectionListAdapter extends BaseAdapter implements ListAdapter, OnIt
   }
 
   private int getKey(Map<Integer, String> map, String value) {
-    for (Iterator i = map.keySet().iterator(); i.hasNext();) {
+    Iterator<Integer> i = map.keySet().iterator();
+    while (i.hasNext()) {
       int key = (Integer) i.next();
       if (map.get(key).equals(value)) {
         return key;

@@ -21,6 +21,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.FileEntity;
 import org.exoplatform.R;
+import org.exoplatform.controller.document.FileDownloadTask;
 import org.exoplatform.model.ExoFile;
 import org.exoplatform.singleton.AccountSetting;
 import org.exoplatform.singleton.DocumentHelper;
@@ -37,6 +38,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -74,6 +76,9 @@ public class ExoDocumentUtils {
   public static final String POWERPOINT_TYPE      = "application/vnd.ms-powerpoint";
 
   public static final String OPEN_POWERPOINT_TYPE = "application/vnd.oasis.opendocument.presentation";
+
+
+  private static FileDownloadTask  mLoadTask;
 
 
   public static boolean isEnoughMemory(int fileSize) {
@@ -166,8 +171,8 @@ public class ExoDocumentUtils {
     Intent intent = new Intent(Intent.ACTION_VIEW);
     intent.setDataAndType(Uri.parse(url), mimeTypeExtension);
     List<ResolveInfo> list = context.getPackageManager()
-                                    .queryIntentActivities(intent,
-                                                           PackageManager.MATCH_DEFAULT_ONLY);
+        .queryIntentActivities(intent,
+                               PackageManager.MATCH_DEFAULT_ONLY);
     return list.size() > 0;
   }
 
@@ -572,6 +577,8 @@ public class ExoDocumentUtils {
               newFile.isFolder = false;
               String canRemove = itemElement.getAttribute("canRemove");
               newFile.canRemove = Boolean.parseBoolean(canRemove.trim());
+              String fileSize = itemElement.getAttribute("size");
+              if(fileSize != null && !"".equals(fileSize)) newFile.fileSize = Long.parseLong(fileSize);
               folderArray.add(newFile);
             }
           }
@@ -761,4 +768,42 @@ public class ExoDocumentUtils {
       return false;
     }
   }
+
+  public static void linkShare(Context context, String fileType, String filePath, String fileName) {
+    if (fileType == null) {
+      new UnreadableFileDialog(context, null).show();
+      return;
+    } else {
+      Resources resource = context.getResources();
+      String subject = resource.getString(R.string.EmailSubject) ;
+      String message = resource.getString(R.string.EmailMessageLink) ;
+      String intentTitle = resource.getString(R.string.EmailMessageLink) ;
+      Intent i = new Intent(Intent.ACTION_SEND);
+      i.putExtra(Intent.EXTRA_SUBJECT,subject + fileName);
+      i.putExtra(Intent.EXTRA_TEXT, message + filePath);
+      i.setType(fileType);
+      context.startActivity(Intent.createChooser(i, intentTitle));
+    }
+  }
+
+
+  public static void fileShare(Context context, String fileType, String filePath, String fileName) {
+    if (fileType == null) {
+      new UnreadableFileDialog(context, null).show();
+      return;
+    } else {
+      if (mLoadTask == null || mLoadTask.getStatus() == FileDownloadTask.Status.FINISHED) {
+        mLoadTask = new FileDownloadTask(context, fileType,filePath, fileName, FileDownloadTask.TYPE_MAIL_FILE);
+        mLoadTask.execute(filePath);
+      }
+    }
+  }
+
+  public static void onCancelLoad() {
+    if (mLoadTask != null && mLoadTask.getStatus() == FileDownloadTask.Status.RUNNING) {
+      mLoadTask.cancel(true);
+      mLoadTask = null;
+    }
+  }
+
 }

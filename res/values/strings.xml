@@ -31,6 +31,12 @@
     <string name="CreateFolder"> Create Folder</string>
     <string name="Send">Send</string>
     <string name="Paste">Paste</string>
+    <string name="ShareLink">Share link</string>
+    <string name="ShareFile">Share file</string>
+    <string name="EmailSubject">I am sharing:</string>
+    <string name="EmailMessageLink">Link to get:</string>
+    <string name="EmailMessageAtach">File:</string>
+    <string name="IntentTitle">Share by</string>
     <string name="Cancel">Cancel</string>
     <string name="OK">OK</string>
     <string name="Remove"> Remove</string>

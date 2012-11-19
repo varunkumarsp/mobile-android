@@ -59,9 +59,15 @@ public class DocumentActivity extends MyActionBar {
 
   // open in
   public static final int        ACTION_OPEN_IN   = 7;
-
-  // default
-  public static final int        ACTION_DEFAULT   = 8;
+ 
+  //Email file
+  public static final int        ACTION_SHARE_FILE   = 8;
+  //Email link
+  public static final int        ACTION_SHARE_LINK   = 9;
+  
+  // default next of end index
+  public static final int        ACTION_DEFAULT   = 10;
+  
 
   private static final String    DOCUMENT_HELPER  = "document_helper";
 

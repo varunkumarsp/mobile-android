@@ -20,6 +20,7 @@ public class ExoFile implements Parcelable {
   public String  workspaceName; // work space of file
 
   public String  nodeType;     // file content type
+  public long fileSize = 0;
 
   // Default constructors
   public ExoFile() {
@@ -31,6 +32,7 @@ public class ExoFile implements Parcelable {
     driveName = "";
     workspaceName = "";
     nodeType = "";
+    fileSize = 0;
   }
 
   public ExoFile(String driverName) {
@@ -42,6 +44,7 @@ public class ExoFile implements Parcelable {
     this.driveName = driverName;
     workspaceName = "";
     nodeType = "";
+    fileSize = 0;
   }
 
   private ExoFile(Parcel in) {
@@ -57,6 +60,7 @@ public class ExoFile implements Parcelable {
     driveName = in.readString();
     workspaceName = in.readString();
     nodeType = in.readString();
+    fileSize = in.readLong();
 
   }
 
@@ -93,6 +97,7 @@ public class ExoFile implements Parcelable {
     par.writeString(driveName);
     par.writeString(workspaceName);
     par.writeString(nodeType);
+    par.writeLong(fileSize);
   }
 
 }
