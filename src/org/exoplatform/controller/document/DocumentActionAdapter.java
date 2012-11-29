@@ -30,7 +30,7 @@ public class DocumentActionAdapter extends BaseAdapter {
   private DocumentActionDescription[]          fileActions = null;
   private ArrayList<DocumentActionDescription> fileActionList;
   private DocumentExtendDialog                 extendDialog;
-  private static final String EMPTY_VALUE = "".intern();
+  private static final String EMPTY_VALUE = "";
   
   public DocumentActionAdapter(DocumentActivity context,
                                DocumentActionDialog parent,
@@ -59,7 +59,7 @@ public class DocumentActionAdapter extends BaseAdapter {
 
       public void onClick(View v) {
         _delegate.dismiss();
-        String slash = "/".intern();
+        String slash = "/";
         switch (pos) {
         case DocumentActivity.ACTION_ADD_PHOTO:
           new AddPhotoDialog(_mContext, _delegate).show();
