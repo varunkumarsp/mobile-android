@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Window;
 import org.exoplatform.R;
 import org.exoplatform.utils.LaunchUtils;
 import org.exoplatform.singleton.AccountSetting;
@@ -43,6 +44,7 @@ public class LaunchActivity extends Activity implements LoginProxy.ProxyListener
   public void redirect() {
     /** no account configured - redirect to Welcome screen */
     if (mSetting.getCurrentServer() == null) {
+      requestWindowFeature(Window.FEATURE_NO_TITLE);
       Intent next = new Intent(this, WelcomeActivity.class);
       startActivityForResult(next, 0);
       overridePendingTransition(0, 0);
@@ -51,6 +53,7 @@ public class LaunchActivity extends Activity implements LoginProxy.ProxyListener
 
     /** performs login */
     if (mSetting.isAutoLoginEnabled()) {
+      requestWindowFeature(Window.FEATURE_NO_TITLE);
       setContentView(R.layout.launch);
 
       Bundle loginData = new Bundle();

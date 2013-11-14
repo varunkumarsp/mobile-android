@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Robolectric.shadowOf;
-import greendroid.widget.ActionBar;
 
 import java.util.ArrayList;
 
@@ -35,19 +34,15 @@ import org.exoplatform.ui.social.ActivityStreamFragment;
 import org.exoplatform.ui.social.AllUpdatesFragment;
 import org.exoplatform.ui.social.SocialTabsActivity;
 import org.exoplatform.ui.social.TabPageIndicator;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.util.FragmentTestUtil;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -66,6 +61,7 @@ public class SocialTabsActivityTst extends ExoActivityTestUtils<SocialTabsActivi
   ViewPager pages;
   ActionBar actionBar;
   ActivityStreamFragment fragment;
+  Menu actionBarMenu;
 
   @Override
 //  @Before
@@ -90,8 +86,8 @@ public class SocialTabsActivityTst extends ExoActivityTestUtils<SocialTabsActivi
     
     tabs = (TabPageIndicator)activity.findViewById(R.id.indicator);
     pages = (ViewPager)activity.findViewById(R.id.pager);
-    actionBar = activity.getActionBar();
-    
+    actionBar = activity.getSupportActionBar();
+    actionBarMenu = activity.getOptionsMenu();
   }
   
   private void startFragment() {
@@ -114,9 +110,10 @@ public class SocialTabsActivityTst extends ExoActivityTestUtils<SocialTabsActivi
     create();
     init();
     
-    assertNotNull("Button should exist at pos 0", actionBar.getItem(0)); // Refresh
-    assertNotNull("Button should exist at pos 1", actionBar.getItem(1)); // Compose
-    assertNull("Button should not exist at pos 2", actionBar.getItem(2)); // ActionBar.getItem() returns null when there is no item at the given position
+    
+    assertNotNull("Button should exist at pos 0", actionBarMenu.getItem(0)); // Refresh
+    assertNotNull("Button should exist at pos 1", actionBarMenu.getItem(1)); // Compose
+    assertNull("Button should not exist at pos 2", actionBarMenu.getItem(2)); // ActionBar.getItem() returns null when there is no item at the given position
     
     assertThat(pages.getAdapter()).hasCount(4); // Should have 4 pages  
     assertThat("Default tab should be All Updates", pages.getCurrentItem(), equalTo(SocialTabsActivity.ALL_UPDATES));
@@ -154,8 +151,9 @@ public class SocialTabsActivityTst extends ExoActivityTestUtils<SocialTabsActivi
     create();
     init();
     
-    ImageButton homeBtn = (ImageButton)actionBar.getChildAt(0); // home button is the 1st child of the action bar layout
-    Robolectric.clickOn(homeBtn); 
+     actionBarMenu.performIdentifierAction(0, 0);
+//    ImageButton homeBtn = (ImageButton)actionBarMenu.getItem(0); // home button is the 1st child of the action bar layout
+//    Robolectric.clickOn(homeBtn); 
     
     
     ShadowActivity sActivity = shadowOf(activity);
@@ -172,7 +170,7 @@ public class SocialTabsActivityTst extends ExoActivityTestUtils<SocialTabsActivi
     createWithBundle(createBundleWithDefaultSettings());
     init();
     
-    HomeController c = new HomeController(activity, activity.loaderItem);
+    HomeController c = new HomeController();
     c.launchNewsService();
     
     fragment = AllUpdatesFragment.getInstance();
