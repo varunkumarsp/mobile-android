@@ -18,11 +18,13 @@
  */
 package org.exoplatform.widget;
 
+/**
+import android.support.v7.app.ActionBarActivity;
 import com.cyrilmottier.android.greendroid.R;
 
 
-import greendroid.util.Config;
-import greendroid.widget.ActionBar;
+//import greendroid.util.Config;
+//import greendroid.widget.ActionBar;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.view.View;
@@ -32,7 +34,9 @@ import android.widget.ListView;
 
 
 @SuppressLint("Registered")
-public class MyListActivity extends MyActionBar {
+public class MyListActivity
+    extends ActionBarActivity {
+    //extends MyActionBar {
 
     private ListAdapter mAdapter;
     private ListView mList;
@@ -51,9 +55,11 @@ public class MyListActivity extends MyActionBar {
         super();
     }
 
+  /**
     public MyListActivity(ActionBar.Type actionBarType) {
         super(actionBarType);
     }
+   **/
 
     /**
      * This method will be called when an item in the list is selected.
@@ -66,12 +72,14 @@ public class MyListActivity extends MyActionBar {
      * @param position The position of the view in the list
      * @param id The row id of the item that was clicked
      */
+/**
     protected void onListItemClick(ListView l, View v, int position, long id) {
     }
 
     /**
      * Provide the cursor for the list view.
      */
+/**
     public void setListAdapter(ListAdapter adapter) {
         synchronized (this) {
             ensureLayout();
@@ -86,6 +94,7 @@ public class MyListActivity extends MyActionBar {
      * 
      * @param position
      */
+/**
     public void setSelection(int position) {
         mList.setSelection(position);
     }
@@ -93,6 +102,7 @@ public class MyListActivity extends MyActionBar {
     /**
      * Get the position of the currently selected list item.
      */
+/**
     public int getSelectedItemPosition() {
         return mList.getSelectedItemPosition();
     }
@@ -100,31 +110,36 @@ public class MyListActivity extends MyActionBar {
     /**
      * Get the cursor row ID of the currently selected list item.
      */
+/**
     public long getSelectedItemId() {
         return mList.getSelectedItemId();
     }
+ **/
 
     /**
      * Get the activity's list view widget.
      */
+/**
     public ListView getListView() {
-        ensureLayout();
+        //ensureLayout();
         return mList;
     }
 
     /**
      * Get the ListAdapter associated with this activity's ListView.
      */
+/**
     public ListAdapter getListAdapter() {
         return mAdapter;
     }
 
     @Override
     public int createLayout() {
-        if (Config.GD_INFO_LOGS_ENABLED) {
-//            Log.d(LOG_TAG, "No layout specified : creating the default layout");
-        }
-        
+        //if (Config.GD_INFO_LOGS_ENABLED) {
+//      //      Log.d(LOG_TAG, "No layout specified : creating the default layout");
+        //}
+
+      /**
         switch (getActionBarType()) {
             case Dashboard:
                 return R.layout.gd_list_content_dashboard;
@@ -135,8 +150,12 @@ public class MyListActivity extends MyActionBar {
             default:
                 return R.layout.gd_list_content_normal;
         }
+       **/
+/**
     }
 
+
+/**
     @Override
     protected boolean verifyLayout() {
         return super.verifyLayout() && mList != null;
@@ -144,7 +163,7 @@ public class MyListActivity extends MyActionBar {
 
     @Override
     public void onPreContentChanged() {
-        super.onPreContentChanged();
+        //super.onPreContentChanged();
 
         mEmptyView = findViewById(android.R.id.empty);
         mList = (ListView) findViewById(android.R.id.list);
@@ -176,3 +195,4 @@ public class MyListActivity extends MyActionBar {
     };
 
 }
+**/

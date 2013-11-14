@@ -20,7 +20,7 @@ package org.exoplatform.widget;
 
 import android.util.Log;
 import android.widget.*;
-import greendroid.widget.LoaderActionBarItem;
+//import greendroid.widget.LoaderActionBarItem;
 
 import java.util.ArrayList;
 
@@ -51,6 +51,10 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 
+/**
+ * Adapter for activity item in activity stream
+ *
+ */
 public class StandardArrayAdapter extends ArrayAdapter<SocialActivityInfo> {
 
   private final ArrayList<SocialActivityInfo> items;
@@ -99,6 +103,8 @@ public class StandardArrayAdapter extends ArrayAdapter<SocialActivityInfo> {
 
     SocialItem socialItem = new SocialItem(mContext, holder, actInfo, false);
     socialItem.initCommonInfo();
+
+    /** Click on content to open activity detail */
     holder.contentLayoutWrap.setOnClickListener(new OnClickListener() {
 
       public void onClick(View v) {
@@ -144,7 +150,8 @@ public class StandardArrayAdapter extends ArrayAdapter<SocialActivityInfo> {
 
   private void onLikeLoad(SocialActivityInfo info, int position) {
     if (mLoadTask == null || mLoadTask.getStatus() == LikeLoadTask.Status.FINISHED) {
-      mLoadTask = (LikeLoadTask) new LikeLoadTask(SocialTabsActivity.instance.loaderItem, position).execute(info);
+      //mLoadTask = (LikeLoadTask) new LikeLoadTask(SocialTabsActivity.instance.loaderItem, position).execute(info);
+      mLoadTask = (LikeLoadTask) new LikeLoadTask(position).execute(info);
     }
   }
 
@@ -174,19 +181,25 @@ public class StandardArrayAdapter extends ArrayAdapter<SocialActivityInfo> {
 
   private class LikeLoadTask extends AsyncTask<SocialActivityInfo, Void, Boolean> {
 
-    private LoaderActionBarItem loaderItem;
+    //private LoaderActionBarItem loaderItem;
 
     private int                 currentPosition;
 
+    /**
     public LikeLoadTask(LoaderActionBarItem item, int pos) {
       loaderItem = item;
+      currentPosition = pos;
+    }
+     **/
+
+    public LikeLoadTask(int pos) {
       currentPosition = pos;
     }
 
     @Override
     protected void onPreExecute() {
       super.onPreExecute();
-      loaderItem.setLoading(true);
+      //loaderItem.setLoading(true);
     }
 
     @Override
@@ -210,7 +223,7 @@ public class StandardArrayAdapter extends ArrayAdapter<SocialActivityInfo> {
 
     @Override
     protected void onPostExecute(Boolean result) {
-      loaderItem.setLoading(false);
+      //loaderItem.setLoading(false);
       if (result) {
         if (SocialTabsActivity.instance != null) {
           int tabId = SocialTabsActivity.instance.mPager.getCurrentItem();

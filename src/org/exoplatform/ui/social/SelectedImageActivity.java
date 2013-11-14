@@ -18,7 +18,8 @@
  */
 package org.exoplatform.ui.social;
 
-import greendroid.widget.ActionBarItem;
+import android.support.v7.app.ActionBarActivity;
+//import greendroid.widget.ActionBarItem;
 
 import java.io.File;
 
@@ -28,7 +29,7 @@ import org.exoplatform.utils.ExoConnectionUtils;
 import org.exoplatform.utils.ExoConstants;
 import org.exoplatform.utils.PhotoUtils;
 import org.exoplatform.widget.ConnectionErrorDialog;
-import org.exoplatform.widget.MyActionBar;
+//import org.exoplatform.widget.MyActionBar;
 import org.exoplatform.widget.WaitingDialog;
 
 import android.content.Context;
@@ -46,7 +47,10 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 
-public class SelectedImageActivity extends MyActionBar implements OnClickListener {
+public class SelectedImageActivity
+    extends ActionBarActivity
+    //extends MyActionBar
+    implements OnClickListener {
 
   private static final int SCALE_WIDTH  = 1024;
 
@@ -90,7 +94,10 @@ public class SelectedImageActivity extends MyActionBar implements OnClickListene
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     setTheme(R.style.Theme_eXo);
-    setActionBarContentView(R.layout.social_selected_image_layout);
+
+    //setActionBarContentView(R.layout.social_selected_image_layout);
+    setContentView(R.layout.social_selected_image_layout);
+
     if (savedInstanceState != null)
       finish();
     else {
@@ -103,8 +110,10 @@ public class SelectedImageActivity extends MyActionBar implements OnClickListene
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
-    this.getContentView().removeAllViews();
-    this.setActionBarContentView(R.layout.social_selected_image_layout);
+    //this.getContentView().removeAllViews();
+    //this.setActionBarContentView(R.layout.social_selected_image_layout);
+
+    setContentView(R.layout.social_selected_image_layout);
     init();
     onLoad(modeId);
   }
@@ -144,6 +153,7 @@ public class SelectedImageActivity extends MyActionBar implements OnClickListene
     }
   }
 
+  /** TODO - replace
   @Override
   public boolean onHandleActionBarItemClick(ActionBarItem item, int position) {
     switch (position) {
@@ -163,6 +173,7 @@ public class SelectedImageActivity extends MyActionBar implements OnClickListene
     }
     return true;
   }
+   **/
 
   @Override
   public void onBackPressed() {
@@ -203,6 +214,7 @@ public class SelectedImageActivity extends MyActionBar implements OnClickListene
     if (DocumentActivity._documentActivityInstance != null) {
       DocumentActivity._documentActivityInstance.startActivityForResult(intent,
                                                                         ExoConstants.REQUEST_ADD_PHOTO);
+
     } else if (ComposeMessageActivity.composeMessageActivity != null) {
       ComposeMessageActivity.composeMessageActivity.startActivityForResult(intent,
                                                                            ExoConstants.REQUEST_ADD_PHOTO);

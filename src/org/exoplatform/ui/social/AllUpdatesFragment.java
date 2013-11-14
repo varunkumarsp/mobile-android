@@ -18,10 +18,11 @@
  */
 package org.exoplatform.ui.social;
 
-import greendroid.widget.LoaderActionBarItem;
+//import greendroid.widget.LoaderActionBarItem;
 
 import java.util.ArrayList;
 
+import android.util.Log;
 import org.exoplatform.R;
 import org.exoplatform.controller.home.SocialLoadTask;
 import org.exoplatform.model.SocialActivityInfo;
@@ -43,8 +44,10 @@ import android.view.View;
 public class AllUpdatesFragment extends ActivityStreamFragment {
 
   public static AllUpdatesFragment instance;
-  
-	@Override
+
+  private static final String TAG = "eXo____AllUpdatesFragment____";
+
+  @Override
 	public int getThisTabId() {
 		return SocialTabsActivity.ALL_UPDATES;
 	}
@@ -86,7 +89,8 @@ public class AllUpdatesFragment extends ActivityStreamFragment {
   
   @Override
   public SocialLoadTask getThisLoadTask() {
-  	return new AllUpdateLoadTask(getActivity(), SocialTabsActivity.instance.loaderItem);
+  	//return new AllUpdateLoadTask(getActivity(), SocialTabsActivity.instance.loaderItem);
+    return new AllUpdateLoadTask(getActivity());
   }
 
   @Override
@@ -99,12 +103,20 @@ public class AllUpdatesFragment extends ActivityStreamFragment {
 
   public class AllUpdateLoadTask extends SocialLoadTask {
 
+    /**
 	  public AllUpdateLoadTask(Context context, LoaderActionBarItem loader) {
 	    super(context, loader);
 	  }
+     **/
 
-	  @Override
+    public AllUpdateLoadTask(Context context) {
+      super(context);
+    }
+
+
+    @Override
 	  public void setResult(ArrayList<SocialActivityInfo> result) {
+      Log.i(TAG, "setResult");
 	  	setActivityList(result);
 	  	setListAdapter();
 	  	listview.getAutoLoadProgressBar().setVisibility(View.GONE);

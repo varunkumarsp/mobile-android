@@ -18,6 +18,7 @@
  */
 package org.exoplatform.widget;
 
+/**
 import greendroid.app.ActionBarActivity;
 import greendroid.app.GDApplication;
 import greendroid.graphics.drawable.ActionBarDrawable;
@@ -272,3 +273,4 @@ public class MyActionBar extends FragmentActivity implements ActionBarActivity {
   }
 
 }
+ **/

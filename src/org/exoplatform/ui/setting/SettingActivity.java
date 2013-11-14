@@ -18,11 +18,6 @@
  */
 package org.exoplatform.ui.setting;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.util.Log;
-import greendroid.widget.ActionBarItem;
-
 import org.exoplatform.R;
 import org.exoplatform.singleton.AccountSetting;
 import org.exoplatform.singleton.ServerSettingHelper;
@@ -31,23 +26,28 @@ import org.exoplatform.utils.ExoConstants;
 import org.exoplatform.utils.ServerConfigurationUtils;
 import org.exoplatform.utils.SettingUtils;
 import org.exoplatform.utils.SocialActivityUtil;
-import org.exoplatform.widget.MyActionBar;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
+//import greendroid.widget.ActionBarItem;
+//import org.exoplatform.widget.MyActionBar;
 
 /**
  * Represents the setting screen<br/>
  *
  * Requires setting_type
  */
-public class SettingActivity extends MyActionBar implements OnClickListener,
-  CheckBox.ViewListener {
+public class SettingActivity
+    //extends MyActionBar
+    extends ActionBarActivity
+    implements OnClickListener, CheckBox.ViewListener {
 
 
   private AccountSetting        mSetting;
@@ -103,12 +103,14 @@ public class SettingActivity extends MyActionBar implements OnClickListener,
     mSetting     = AccountSetting.getInstance();
     mResources   = getResources();
 
-    requestWindowFeature(Window.FEATURE_NO_TITLE);
+    //setTheme(R.style.Theme_eXo);
+    getSupportActionBar().setDisplayShowTitleEnabled(true);
+    setTitle(mResources.getString(R.string.Settings));
 
-    setTheme(R.style.Theme_eXo);
-    setActionBarContentView(R.layout.settings);
-    getActionBar().setType(greendroid.widget.ActionBar.Type.Normal);
-    getActionBar().setTitle(mResources.getString(R.string.Settings));
+    setContentView(R.layout.settings);
+    //setActionBarContentView(R.layout.settings);
+    //getActionBar().setType(greendroid.widget.ActionBar.Type.Normal);
+    //getActionBar().setTitle(mResources.getString(R.string.Settings));
 
     initSubViews();
     initStates();
@@ -250,10 +252,12 @@ public class SettingActivity extends MyActionBar implements OnClickListener,
     mStartCloudSignUpBtn.setText(mResources.getString(R.string.StartCloudSignUpAssistant));
   }
 
+  /**
   public boolean onHandleActionBarItemClick(ActionBarItem item, int position) {
     finish();
     return true;
   }
+  **/
 
   @Override
   public void onBackPressed() {

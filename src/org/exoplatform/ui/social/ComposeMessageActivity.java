@@ -18,8 +18,9 @@
  */
 package org.exoplatform.ui.social;
 
-import greendroid.util.Config;
-import greendroid.widget.ActionBarItem;
+import android.support.v7.app.ActionBarActivity;
+//import greendroid.util.Config;
+//import greendroid.widget.ActionBarItem;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,7 +32,7 @@ import org.exoplatform.utils.ExoConstants;
 import org.exoplatform.utils.PhotoUtils;
 import org.exoplatform.utils.SettingUtils;
 import org.exoplatform.widget.AddPhotoDialog;
-import org.exoplatform.widget.MyActionBar;
+//import org.exoplatform.widget.MyActionBar;
 import org.exoplatform.widget.PostWaitingDialog;
 import org.exoplatform.widget.RemoveAttachedPhotoDialog;
 import org.exoplatform.widget.RetangleImageView;
@@ -56,7 +57,10 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
 
-public class ComposeMessageActivity extends MyActionBar implements View.OnClickListener {
+public class ComposeMessageActivity
+    //extends MyActionBar
+    extends ActionBarActivity
+    implements View.OnClickListener {
 
   private PostWaitingDialog            _progressDialog;
 
@@ -96,10 +100,14 @@ public class ComposeMessageActivity extends MyActionBar implements View.OnClickL
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    requestWindowFeature(Window.FEATURE_NO_TITLE);
-    setTheme(R.style.Theme_eXo);
-    setActionBarContentView(R.layout.compose_message_layout);
-    getActionBar().setType(greendroid.widget.ActionBar.Type.Normal);
+
+    // requestWindowFeature(Window.FEATURE_NO_TITLE);
+    // setTheme(R.style.Theme_eXo);
+
+    setContentView(R.layout.compose_message_layout);
+    //setActionBarContentView(R.layout.compose_message_layout);
+    //getActionBar().setType(greendroid.widget.ActionBar.Type.Normal);
+
     changeLanguage();
     composeMessageActivity = this;
     if (savedInstanceState != null)
@@ -108,8 +116,9 @@ public class ComposeMessageActivity extends MyActionBar implements View.OnClickL
       composeType = getIntent().getIntExtra(ExoConstants.COMPOSE_TYPE, composeType);
       if (composeType == 0) {
         setTitle(statusUpdate);
-        addActionBarItem();
-        getActionBar().getItem(0).setDrawable(R.drawable.action_bar_icon_photo);
+        //addActionBarItem();
+        //getActionBar().getItem(0).setDrawable(R.drawable.action_bar_icon_photo);
+
       } else {
         currentPosition = getIntent().getIntExtra(ExoConstants.ACTIVITY_CURRENT_POSITION,
                                                   currentPosition);
@@ -144,6 +153,7 @@ public class ComposeMessageActivity extends MyActionBar implements View.OnClickL
 
   }
 
+  /**      TODO - replace this function
   @Override
   public boolean onHandleActionBarItemClick(ActionBarItem item, int position) {
     switch (position) {
@@ -166,6 +176,7 @@ public class ComposeMessageActivity extends MyActionBar implements View.OnClickL
 
     return true;
   }
+  **/
 
   public void onActivityResult(int requestCode, int resultCode, Intent intent) {
     super.onActivityResult(requestCode, resultCode, intent);
@@ -236,7 +247,7 @@ public class ComposeMessageActivity extends MyActionBar implements View.OnClickL
       fileAttachWrap.removeAllViews();
       fileAttachWrap.addView(image, params);
     } catch (IOException e) {
-      if (Config.GD_ERROR_LOGS_ENABLED)
+      //if (Config.GD_ERROR_LOGS_ENABLED)
         Log.e("Exception", "Error when adding image to message!");
     }
 

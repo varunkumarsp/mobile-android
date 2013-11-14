@@ -18,11 +18,10 @@ package org.exoplatform.mobile.tests;
 
 import static org.fest.assertions.api.ANDROID.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.robolectric.Robolectric.shadowOf;
-import greendroid.widget.ActionBar;
 
 import org.exoplatform.R;
 import org.exoplatform.singleton.AccountSetting;
@@ -39,14 +38,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowIntent;
 
 import android.content.Intent;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
-
 /**
  * Created by The eXo Platform SAS
  * Author : Philippe Aristote
@@ -61,6 +62,7 @@ public class HomeActivityTest extends ExoActivityTestUtils<HomeActivity> {
   LinearLayout activitiesBtn, documentsBtn, appsBtn;
   ShaderImageView userAvatar;
   ActionBar actionBar;
+  Menu actionBarMenu;
   
   private void init() {
     flipper = (ViewFlipper)activity.findViewById(R.id.home_social_flipper);
@@ -74,7 +76,7 @@ public class HomeActivityTest extends ExoActivityTestUtils<HomeActivity> {
     documentsBtn = (LinearLayout)documentsTV.getParent();
     appsBtn = (LinearLayout)appsTV.getParent();
     
-    actionBar = activity.getActionBar();
+    actionBar = activity.getSupportActionBar();
     
   }
   
@@ -119,9 +121,9 @@ public class HomeActivityTest extends ExoActivityTestUtils<HomeActivity> {
     
     // because it's a greendroid actionbar, the number of items is not exposed
     // we use a trick to verify that only 2 items are present
-    assertNotNull(actionBar.getItem(0)); // refresh button, must not be null
-    assertNotNull(actionBar.getItem(1)); // sign-out button, must not be null
-    assertNull(actionBar.getItem(2));    // ActionBar.getItem() returns null when there is no item at the given position
+    assertNotNull(actionBarMenu.getItem(0)); // refresh button, must not be null
+    assertNotNull(actionBarMenu.getItem(1)); // sign-out button, must not be null
+    assertNull(actionBarMenu.getItem(2));    // ActionBar.getItem() returns null when there is no item at the given position
     
     
   }
@@ -188,7 +190,9 @@ public class HomeActivityTest extends ExoActivityTestUtils<HomeActivity> {
     create();
     init();
     
-    Robolectric.clickOn(actionBar.getItem(1).getItemView()); // sign out button
+
+    actionBarMenu.performIdentifierAction(1, 0);
+//    Robolectric.clickOn(actionBarMenu.getItem(1)); // sign out button
     
     ShadowActivity sActivity = shadowOf(activity);
     Intent welcomeIntent = sActivity.getNextStartedActivity();

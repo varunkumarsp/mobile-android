@@ -34,7 +34,7 @@
  */
 package org.exoplatform.ui.social;
 
-import greendroid.widget.LoaderActionBarItem;
+//import greendroid.widget.LoaderActionBarItem;
 
 import java.util.ArrayList;
 
@@ -96,7 +96,8 @@ public class MySpacesFragment extends ActivityStreamFragment {
   
   @Override
   public SocialLoadTask getThisLoadTask() {
-  	return new MySpacesLoadTask(getActivity(), SocialTabsActivity.instance.loaderItem);
+  	//return new MySpacesLoadTask(getActivity(), SocialTabsActivity.instance.loaderItem);
+  	return new MySpacesLoadTask(getActivity());
   }
 
   public void setListAdapter() {
@@ -105,8 +106,14 @@ public class MySpacesFragment extends ActivityStreamFragment {
   
   public class MySpacesLoadTask extends SocialLoadTask {
 
+    /**
     public MySpacesLoadTask(Context context, LoaderActionBarItem loader) {
       super(context, loader);
+    }
+     **/
+
+    public MySpacesLoadTask(Context context) {
+      super(context);
     }
 
     @Override
