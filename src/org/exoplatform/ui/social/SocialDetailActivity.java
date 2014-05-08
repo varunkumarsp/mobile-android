@@ -328,7 +328,6 @@ public class SocialDetailActivity
     } else {
       SocialDetailActivity.socialDetailActivity.setEmptyView(View.VISIBLE);
     }
-
   }
 
   /*

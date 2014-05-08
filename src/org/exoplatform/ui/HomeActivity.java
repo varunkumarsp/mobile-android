@@ -99,8 +99,6 @@ public class HomeActivity
 
   private SocialLoadTask         mLoadTask;
 
-  //public  LoaderActionBarItem    loader;
-
   public  static final int     FLIPPER_VIEW = 10;
 
   private static final String TAG = "eXo____HomeActivity____";
@@ -173,6 +171,36 @@ public class HomeActivity
     //startSocialService(loaderItem);
     startLoadingSocialData();
   }
+
+  /**
+   * Load a number of activities with specific type
+   *
+   * @param number
+   * @param type
+   */
+  /**
+  public void onLoad(int number, int type) {
+    if (ExoConnectionUtils.isNetworkAvailableExt(this)) {
+      if (mLoadTask == null || mLoadTask.getStatus() == SocialLoadTask.Status.FINISHED) {
+        mLoadTask = (SocialLoadTask) new SocialLoadTask(this, loader) {
+
+          @Override
+          protected ArrayList<SocialActivityInfo> getSocialActivityList() {
+            return SocialServiceHelper.getInstance().socialInfoList;
+          }
+
+          @Override
+          protected RealtimeListAccess<RestActivity> getRestActivityList(RestIdentity identity, QueryParams params) throws SocialClientLibException {
+            return activityService.getFeedActivityStream(identity, params);
+          }
+        }.execute(number, type);
+      }
+    } else {
+      new ConnectionErrorDialog(this).show();
+    }
+  }
+   **/
+
 
   /**
    * Load a number of activities with specific type
