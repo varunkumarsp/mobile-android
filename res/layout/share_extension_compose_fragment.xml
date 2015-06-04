@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    
+    <LinearLayout android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        
+        <EditText android:id="@+id/share_post_message"
+            android:layout_height="300dp"
+            android:layout_width="200dp"
+            android:hint="@string/ComposerPlaceHolder"
+            android:background="@drawable/compose_textfield_background"/>
+        
+        <ImageView android:id="@+id/share_attachment_thumbnail"
+            android:layout_height="100dp"
+            android:layout_width="100dp"
+            android:src="@drawable/action_bar_icon_photo"
+            android:contentDescription="@string/AttachedPhoto"/>
+        
+    </LinearLayout>
+    
+    <TextView android:id="@+id/share_account"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/compose_textfield_background"/>
+    
+    <TextView android:id="@+id/share_space"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/Public"
+        android:background="@drawable/compose_textfield_background"/>
+
+</LinearLayout>

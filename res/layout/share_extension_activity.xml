@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#DCDCDCDC">
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        
+        <TextView
+            android:id="@+id/share_activity_title"
+            style="@style/AccountFragmentTitleStyle"
+            android:text="Share"/>
+        
+        <Button
+            android:id="@+id/share_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="Post"
+            android:onClick="onShareButtonClicked"
+            style="@style/AccountSwitcherSignInButtonStyle" />
+
+        <ImageView
+            android:id="@+id/separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/share_button"
+            android:layout_centerVertical="true"
+            android:src="@drawable/action_bar_separator_complete"
+            android:layout_marginRight="5dp"
+            android:contentDescription="Share" />
+
+    </RelativeLayout>
+    
+    <FrameLayout android:id="@+id/fragment_panel"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:layout_gravity="top"/>
+    
+</LinearLayout>
