@@ -18,12 +18,19 @@
  */
 package org.exoplatform.shareextension;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.InputStreamEntity;
 import org.exoplatform.model.ExoAccount;
+import org.exoplatform.singleton.DocumentHelper;
+import org.exoplatform.singleton.SocialServiceHelper;
+import org.exoplatform.social.client.api.model.RestActivity;
 import org.exoplatform.utils.ExoConnectionUtils;
+import org.exoplatform.utils.ExoConstants;
 import org.exoplatform.utils.ExoDocumentUtils;
 import org.exoplatform.utils.ExoDocumentUtils.DocumentInfo;
 
@@ -53,21 +60,19 @@ import android.util.Log;
  */
 public class ShareService extends IntentService {
 
-  public static final String LOG_TAG          = "____eXo____UploadService____";
+  public static final String LOG_TAG       = "____eXo____UploadService____";
 
-  public static final String CONTENT_URI      = "contentUri";
+  public static final String CONTENT_URI   = "contentUri";
 
-  public static final String CONTENT_NAME     = "contentName";
+  public static final String EXO_ACCOUNT   = "eXoAccount";
 
-  public static final String UPLOAD_URL       = "uploadUrl";
+  public static final String POST_MESSAGE  = "postMessage";
 
-  public static final String EXO_ACCOUNT      = "eXoAccount";
+  public static final String POST_IN_SPACE = "postInSpace";
 
-  public static final String POST_MESSAGE     = "postMessage";
-
-  public static final String POST_IN_SPACE    = "postInSpace";
-
-  private String             destinationSpace = null;
+  private enum ShareResult {
+    SUCCESS, ERROR_INCORRECT_FILE, ERROR_INCORRECT_CONTENT_URI, ERROR_INCORRECT_ACCOUNT, ERROR_CREATE_FOLDER, ERROR_UPLOAD_FAILED, ERROR_POST_FAILED
+  }
 
   public ShareService() {
     super(LOG_TAG);
@@ -76,58 +81,107 @@ public class ShareService extends IntentService {
   @Override
   protected void onHandleIntent(Intent intent) {
     String contentUri = intent.getStringExtra(CONTENT_URI);
-    String contentName = intent.getStringExtra(CONTENT_NAME);
     ExoAccount account = intent.getParcelableExtra(EXO_ACCOUNT);
-    String uploadUrl = intent.getStringExtra(UPLOAD_URL);
     String postMessage = intent.getStringExtra(POST_MESSAGE);
-    destinationSpace = intent.getStringExtra(POST_IN_SPACE);
+    String destinationSpace = intent.getStringExtra(POST_IN_SPACE);
 
-    if (!isOK(contentUri, account, uploadUrl))
-      stopService();
+    if (contentUri == null || "".equals(contentUri))
+      stopService(ShareResult.ERROR_INCORRECT_CONTENT_URI);
 
-    if (contentName == null || "".equals(contentName))
-      contentName = "default";
+    if (account == null)
+      stopService(ShareResult.ERROR_INCORRECT_ACCOUNT);
 
-    if (postMessage == null || "".equals(postMessage))
-      postMessage = account.userFullName + " has shared the document " + contentName;
+    if (destinationSpace == null) {
+      // TODO upload file to the documents folder of the space
+      // set the activity type as files:spaces
+    } else {
+
+    }
 
     // Create the directory where the mobile uploads are stored on the server
-    if (ExoDocumentUtils.createFolder(uploadUrl)) {
-      DocumentInfo fileToUpload = ExoDocumentUtils.documentInfoFromUri(Uri.parse(contentUri), getBaseContext());
+    String uploadUrl = DocumentHelper.getInstance().getRepositoryHomeUrl() + "/Public/Mobile";
+    boolean createFolder = ExoDocumentUtils.createFolder(uploadUrl);
+    if (!createFolder)
+      stopService(ShareResult.ERROR_CREATE_FOLDER);
 
-      if (fileToUpload == null)
-        stopService();
+    DocumentInfo fileToUpload = ExoDocumentUtils.documentInfoFromUri(Uri.parse(contentUri), getBaseContext());
+    if (fileToUpload == null)
+      stopService(ShareResult.ERROR_INCORRECT_FILE);
 
-      String destinationUrl = (uploadUrl + "/" + fileToUpload.documentName).replaceAll(" ", "%20");
-      Log.d(LOG_TAG, String.format("Uploading %s to %s", fileToUpload, destinationUrl));
-      HttpPut upload = new HttpPut(destinationUrl);
-      InputStreamEntity stream = new InputStreamEntity(fileToUpload.documentData, fileToUpload.documentSizeKb * 1024);
-      stream.setContentType(fileToUpload.documentMimeType);
-      upload.setEntity(stream);
-      HttpResponse response = null;
-      try {
-        response = ExoConnectionUtils.httpClient.execute(upload);
-      } catch (Exception e) {
-        stopService();
-      }
+    boolean uploadResult = uploadFile(fileToUpload, uploadUrl);
+    if (uploadResult) {
+
+    } else {
+      stopService(ShareResult.ERROR_UPLOAD_FAILED);
+    }
+
+    if (postMessage == null || "".equals(postMessage))
+      postMessage = account.userFullName + " has shared the document " + fileToUpload.documentName;
+
+    Map<String, String> templateParams = templateParams(fileToUpload.documentName, uploadUrl, account.serverUrl);
+    boolean postResult = postMessage(postMessage, templateParams);
+    if (postResult) {
+      stopService(ShareResult.SUCCESS);
+    } else {
+      stopService(ShareResult.ERROR_POST_FAILED);
+    }
+
+  }
+
+  private boolean uploadFile(DocumentInfo fileToUpload, String uploadUrl) {
+    String destinationUrl = (uploadUrl + "/" + fileToUpload.documentName).replaceAll(" ", "%20");
+    Log.d(LOG_TAG, String.format("Uploading %s to %s", fileToUpload, destinationUrl));
+    HttpPut upload = new HttpPut(destinationUrl);
+    InputStreamEntity stream = new InputStreamEntity(fileToUpload.documentData, fileToUpload.documentSizeKb * 1024);
+    stream.setContentType(fileToUpload.documentMimeType);
+    upload.setEntity(stream);
+    HttpResponse response = null;
+    try {
+      response = ExoConnectionUtils.httpClient.execute(upload);
       Log.d(LOG_TAG, String.format("Response %s : %s", response.getStatusLine().getStatusCode(), response.getStatusLine()
                                                                                                          .getReasonPhrase()));
-
       int status = response.getStatusLine().getStatusCode();
-      if (status >= HttpStatus.SC_OK && status < HttpStatus.SC_MULTIPLE_CHOICES) {
-
-      }
+      return (status >= HttpStatus.SC_OK && status < HttpStatus.SC_MULTIPLE_CHOICES);
+    } catch (Exception e) {
+      Log.e(LOG_TAG, "Upload failed", e);
     }
+    return false;
   }
 
-  private boolean isOK(String contentUri, ExoAccount account, String uploadUrl) {
-    boolean notOk = false;
-    notOk = (contentUri == null || "".equals(contentUri) || account == null || uploadUrl == null || "".equals(uploadUrl));
-    return !notOk;
+  private Map<String, String> templateParams(String docName, String uploadUrl, String domainUrl) {
+    String docUrl = uploadUrl + "/" + docName;
+    Map<String, String> templateParams = new HashMap<String, String>();
+    templateParams.put("WORKSPACE", ExoConstants.DOCUMENT_COLLABORATION);
+    templateParams.put("REPOSITORY", DocumentHelper.getInstance().repository);
+    String docLink = docUrl.substring(domainUrl.length());
+    templateParams.put("DOCLINK", docLink);
+    StringBuffer beginPath = new StringBuffer("/portal/rest/jcr/").append(DocumentHelper.getInstance().repository)
+                                                                  .append("/")
+                                                                  .append(ExoConstants.DOCUMENT_COLLABORATION)
+                                                                  .append("/");
+    String docPath = docLink.substring(beginPath.length());
+    templateParams.put("DOCPATH", docPath);
+    templateParams.put("DOCNAME", docName);
+    return templateParams;
   }
 
-  private void stopService() {
-    // TODO notif to inform that upload has failed
+  private boolean postMessage(String message, Map<String, String> templateParams) {
+    RestActivity activity = new RestActivity();
+    activity.setTitle(message);
+    activity.setType(RestActivity.DOC_ACTIVITY_TYPE);
+    templateParams.put("MESSAGE", message);
+    activity.setTemplateParams(templateParams);
+    try {
+      return (SocialServiceHelper.getInstance().activityService.create(activity) != null);
+    } catch (Exception e) {
+      Log.e(LOG_TAG, "Post message failed", e);
+    }
+    return false;
+  }
+
+  private void stopService(ShareResult result) {
+    // TODO notif to inform that upload has finished
+    Log.d(LOG_TAG, String.format("Share result: %s", result));
     stopSelf();
   }
 

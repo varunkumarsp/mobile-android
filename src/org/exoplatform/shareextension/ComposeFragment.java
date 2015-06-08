@@ -22,7 +22,6 @@ import java.io.InputStream;
 
 import org.exoplatform.R;
 import org.exoplatform.model.ExoAccount;
-import org.exoplatform.singleton.AccountSetting;
 import org.exoplatform.singleton.ServerSettingHelper;
 import org.exoplatform.utils.ExoDocumentUtils;
 import org.exoplatform.utils.ExoDocumentUtils.DocumentInfo;
@@ -46,27 +45,19 @@ import android.widget.Toast;
  */
 public class ComposeFragment extends Fragment {
 
-  private EditText   etPostMessage;
+  private EditText  etPostMessage;
 
-  private TextView   tvAccount, tvSpace;
+  private TextView  tvAccount, tvSpace;
 
-  private ImageView  imgThumb;
+  private ImageView imgThumb;
 
-  private String     postMessage;
+  private String    postMessage;
 
-  private ExoAccount selectedAccount;
-
-  private Uri        contentUri;
-
-  private String     contentName;
-
-  // if null, the post is public
-  private String     spaceName;
+  private Uri       contentUri;
 
   public ComposeFragment(String text, Uri content) {
     postMessage = text == null ? "" : text;
     contentUri = content;
-    selectedAccount = AccountSetting.getInstance().getCurrentAccount();
   }
 
   private void init() {
@@ -87,7 +78,6 @@ public class ComposeFragment extends Fragment {
         Toast.makeText(getActivity(), "File too big (more than 10MB)", Toast.LENGTH_SHORT).show();
         getActivity().finish();
       }
-      contentName = info.documentName;
       Bitmap thumbnail = getThumbnail(info.documentData);
       if (thumbnail != null) {
         imgThumb.setImageBitmap(thumbnail);
@@ -117,32 +107,30 @@ public class ComposeFragment extends Fragment {
   @Override
   public void onResume() {
     etPostMessage.setText(postMessage);
+    ExoAccount selectedAccount = getShareActivity().getSelectedAccount();
     if (selectedAccount != null)
       tvAccount.setText(selectedAccount.accountName + " (" + selectedAccount.username + ")");
     super.onResume();
   }
 
   /*
-   * GETTERS
+   * GETTERS & SETTERS
    */
 
-  public ExoAccount getSelectedAccount() {
-    return selectedAccount;
+  public ShareActivity getShareActivity() {
+    if (getActivity() instanceof ShareActivity) {
+      return (ShareActivity) getActivity();
+    } else {
+      throw new RuntimeException("This fragment is only valid in the activity org.exoplatform.shareextension.ShareActivity");
+    }
   }
 
   public String getPostMessage() {
     return etPostMessage.getText().toString();
   }
 
-  public String getContentUri() {
-    return contentUri.toString();
+  public void setSpaceSelectorLabel(String label) {
+    tvSpace.setText(label);
   }
 
-  public String getContentName() {
-    return contentName;
-  }
-
-  public String getSpaceName() {
-    return spaceName;
-  }
 }

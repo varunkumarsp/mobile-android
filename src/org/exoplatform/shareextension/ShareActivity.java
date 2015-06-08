@@ -18,14 +18,22 @@
  */
 package org.exoplatform.shareextension;
 
-import java.io.IOException;
+import java.net.URL;
+import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.exoplatform.R;
-import org.exoplatform.controller.social.ComposeMessageController;
 import org.exoplatform.model.ExoAccount;
-import org.exoplatform.singleton.DocumentHelper;
+import org.exoplatform.singleton.AccountSetting;
+import org.exoplatform.singleton.ServerSettingHelper;
+import org.exoplatform.singleton.SocialServiceHelper;
+import org.exoplatform.social.client.api.ClientServiceFactory;
+import org.exoplatform.social.client.api.SocialClientContext;
+import org.exoplatform.social.client.api.service.VersionService;
+import org.exoplatform.social.client.core.ClientServiceFactoryHelper;
+import org.exoplatform.ui.social.SpaceSelectorActivity;
 import org.exoplatform.utils.ExoConnectionUtils;
+import org.exoplatform.utils.ExoConstants;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -44,19 +52,25 @@ import android.widget.Toast;
  */
 public class ShareActivity extends FragmentActivity {
 
-  public static final String       LOG_TAG           = "____eXo____Share_Extension____";
+  public static final String LOG_TAG                  = "____eXo____Share_Extension____";
 
-  private final String             COMPOSE_FRAGMENT  = "compose";
+  private static final int   SELECT_SHARE_DESTINATION = 11;
 
-  private final String             ACCOUNTS_FRAGMENT = "accounts";
+  private final String       COMPOSE_FRAGMENT         = "compose";
 
-  private final String             SIGNIN_FRAGMENT   = "sign_in";
+  private final String       ACCOUNTS_FRAGMENT        = "accounts";
 
-  private final String             SPACES_FRAGMENT   = "spaces";
+  private final String       SIGNIN_FRAGMENT          = "sign_in";
 
-  private ComposeFragment          composer;
+  private ComposeFragment    composer;
 
-  private ComposeMessageController controller;
+  private ExoAccount         selectedAccount;
+
+  private String             selectedSpace;
+
+  private Uri                contentUri;
+
+  private boolean            online;
 
   @Override
   protected void onCreate(Bundle bundle) {
@@ -64,19 +78,21 @@ public class ShareActivity extends FragmentActivity {
 
     setContentView(R.layout.share_extension_activity);
 
+    online = false;
+
     Intent intent = getIntent();
     String action = intent.getAction();
     String type = intent.getType();
     String postMessage = "";
-    Uri contentUri = null;
     if (Intent.ACTION_SEND.equals(action) && type != null) {
       if ("text/plain".equals(type)) {
         postMessage = intent.getStringExtra(Intent.EXTRA_TEXT);
       } else {
         contentUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
       }
-
       Log.d(LOG_TAG, String.format("Sharing file at uri %s", contentUri.toString()));
+
+      init();
 
       composer = new ComposeFragment(postMessage, contentUri);
       getSupportFragmentManager().beginTransaction().add(R.id.fragment_panel, composer, COMPOSE_FRAGMENT).commit();
@@ -86,52 +102,136 @@ public class ShareActivity extends FragmentActivity {
     }
   }
 
+  private void init() {
+    ServerSettingHelper.getInstance().getServerInfoList(this);
+    selectedAccount = AccountSetting.getInstance().getCurrentAccount();
+    if (selectedAccount == null) {
+      List<ExoAccount> serverList = ServerSettingHelper.getInstance().getServerInfoList(this);
+      int selectedServerIdx = Integer.parseInt(getSharedPreferences(ExoConstants.EXO_PREFERENCE, 0).getString(ExoConstants.EXO_PRF_DOMAIN_INDEX,
+                                                                                                              "-1"));
+      AccountSetting.getInstance().setDomainIndex(String.valueOf(selectedServerIdx));
+      AccountSetting.getInstance()
+                    .setCurrentAccount((selectedServerIdx == -1 || selectedServerIdx >= serverList.size()) ? null
+                                                                                                          : serverList.get(selectedServerIdx));
+      selectedAccount = AccountSetting.getInstance().getCurrentAccount();
+    }
+    if (selectedAccount != null && selectedAccount.password != null && !"".equals(selectedAccount.password)) {
+      loginWithSelectedAccount();
+    }
+  }
+
   public void onShareButtonClicked(View view) {
-    ExoAccount acc = composer.getSelectedAccount();
-    if (acc == null)
+    if (selectedAccount == null || !online)
       return;
 
-    new AsyncTask<String, Void, Integer>() {
-      @Override
-      protected Integer doInBackground(String... params) {
-        String username = params[0];
-        String password = params[1];
-        String url = params[2] + "/rest/private/platform/info";
-        try {
-          Log.d(LOG_TAG, String.format("Started login request to %s ...", url));
-          HttpResponse resp = ExoConnectionUtils.getPlatformResponse(username, password, url);
-          ExoConnectionUtils.checkPLFVersion(resp, params[2], username);
-          int result = ExoConnectionUtils.checkPlatformRespose(resp);
-          return Integer.valueOf(result);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-        return Integer.valueOf(ExoConnectionUtils.LOGIN_FAILED);
-      }
+    Log.d(LOG_TAG, "Start share service...");
+    Intent share = new Intent(getBaseContext(), ShareService.class);
+    share.putExtra(ShareService.CONTENT_URI, contentUri.toString());
+    share.putExtra(ShareService.EXO_ACCOUNT, selectedAccount);
+    share.putExtra(ShareService.POST_MESSAGE, composer.getPostMessage());
+    share.putExtra(ShareService.POST_IN_SPACE, selectedSpace);
+    startService(share);
+    // TODO i18n
+    Toast.makeText(getBaseContext(), "The upload has started, check the status in the notification area.", Toast.LENGTH_LONG)
+         .show();
 
-      protected void onPostExecute(Integer result) {
-        Log.d(LOG_TAG, String.format("Received login response %s", result));
-        if (ExoConnectionUtils.LOGIN_SUCCESS == result.intValue()) {
-          Log.d(LOG_TAG, "Start share service...");
-          Intent share = new Intent(getBaseContext(), ShareService.class);
-          share.putExtra(ShareService.CONTENT_URI, composer.getContentUri());
-          share.putExtra(ShareService.CONTENT_NAME, composer.getContentName());
-          share.putExtra(ShareService.EXO_ACCOUNT, composer.getSelectedAccount());
-          share.putExtra(ShareService.UPLOAD_URL, DocumentHelper.getInstance().getRepositoryHomeUrl() + "/Public/Mobile");
-          share.putExtra(ShareService.POST_MESSAGE, composer.getPostMessage());
-          share.putExtra(ShareService.POST_IN_SPACE, composer.getSpaceName());
-          startService(share);
-          // TODO i18n
-          Toast.makeText(getBaseContext(),
-                         "The upload has started, check the status in the notification area.",
-                         Toast.LENGTH_LONG).show();
+    finish();
+  }
 
-          finish();
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == SELECT_SHARE_DESTINATION) {
+      if (resultCode == RESULT_OK) {
+        selectedSpace = data.getStringExtra(SpaceSelectorActivity.SELECTED_DESTINATION);
+        if (selectedSpace == null) {
+          composer.setSpaceSelectorLabel(getResources().getString(R.string.Public));
         } else {
-
+          String spaceDisplayName = data.getStringExtra(SpaceSelectorActivity.SELECTED_SPACE_DISPLAY_NAME);
+          composer.setSpaceSelectorLabel(spaceDisplayName);
         }
-      };
-    }.execute(acc.username, acc.password, acc.serverUrl);
+      }
+    }
+  }
+
+  /*
+   * GETTERS
+   */
+
+  public ExoAccount getSelectedAccount() {
+    return selectedAccount;
+  }
+
+  /*
+   * CLICK LISTENERS
+   */
+
+  public void onSelectAccount(View v) {
+
+  }
+
+  public void onSelectSpace(View v) {
+    if (online) {
+      Intent spaceSelector = new Intent(this, SpaceSelectorActivity.class);
+      startActivityForResult(spaceSelector, SELECT_SHARE_DESTINATION);
+    }
+  }
+
+  /*
+   * TASKS
+   */
+
+  public void loginWithSelectedAccount() {
+    new LoginTask().execute(selectedAccount);
+  }
+
+  private class LoginTask extends AsyncTask<ExoAccount, Void, Integer> {
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected Integer doInBackground(ExoAccount... accounts) {
+      String username = accounts[0].username;
+      String password = accounts[0].password;
+      String url = accounts[0].serverUrl + "/rest/private/platform/info";
+      try {
+        Log.d(LOG_TAG, String.format("Started login request to %s ...", url));
+        HttpResponse resp = ExoConnectionUtils.getPlatformResponse(username, password, url);
+        ExoConnectionUtils.checkPLFVersion(resp, accounts[0].serverUrl, username);
+        int result = ExoConnectionUtils.checkPlatformRespose(resp);
+        if (ExoConnectionUtils.LOGIN_SUCCESS == result) {
+          URL u = new URL(accounts[0].serverUrl);
+          SocialClientContext.setProtocol(u.getProtocol());
+          SocialClientContext.setHost(u.getHost());
+          SocialClientContext.setPort(u.getPort());
+          SocialClientContext.setPortalContainerName(ExoConstants.ACTIVITY_PORTAL_CONTAINER);
+          SocialClientContext.setRestContextName(ExoConstants.ACTIVITY_REST_CONTEXT);
+          SocialClientContext.setUsername(username);
+          SocialClientContext.setPassword(password);
+          ClientServiceFactory clientServiceFactory = ClientServiceFactoryHelper.getClientServiceFactory();
+          VersionService versionService = clientServiceFactory.createVersionService();
+          SocialClientContext.setRestVersion(versionService.getLatest());
+          SocialServiceHelper.getInstance().activityService = clientServiceFactory.createActivityService();
+          SocialServiceHelper.getInstance().spaceService = clientServiceFactory.createSpaceService();
+        }
+        return Integer.valueOf(result);
+      } catch (Exception e) {
+        Log.e(LOG_TAG, "Login task failed", e);
+      }
+      return Integer.valueOf(ExoConnectionUtils.LOGIN_FAILED);
+    }
+
+    @Override
+    protected void onPostExecute(Integer result) {
+      Log.d(LOG_TAG, String.format("Received login response %s", result));
+      String status = "Status: ";
+      if (ExoConnectionUtils.LOGIN_SUCCESS == result.intValue()) {
+        online = true;
+        status += "online";
+      } else {
+        online = false;
+        status += "offline";
+      }
+      Toast.makeText(getBaseContext(), status, Toast.LENGTH_SHORT).show();
+    }
 
   }
 }
