@@ -14,28 +14,56 @@
             style="@style/AccountFragmentTitleStyle"
             android:text="Share"/>
         
-        <Button
-            android:id="@+id/share_button"
+        <ImageView
+            android:id="@+id/share_online_status_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="Post"
-            android:onClick="onShareButtonClicked"
-            style="@style/AccountSwitcherSignInButtonStyle" />
-
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/separator"
+            android:src="@drawable/status_circle"
+            android:layout_marginRight="@dimen/margin_xxs"
+            android:contentDescription="@string/SignInInformation" />
+        
         <ImageView
             android:id="@+id/separator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/share_button"
+            android:layout_alignLeft="@+id/share_button_wrapper"
             android:layout_centerVertical="true"
             android:src="@drawable/action_bar_separator_complete"
-            android:layout_marginRight="5dp"
-            android:contentDescription="Share" />
+            android:layout_marginRight="@dimen/margin_xxs"
+            android:contentDescription="@string/StatusUpdate" />
+        
+        <RelativeLayout
+            android:id="@+id/share_button_wrapper" 
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true">
+            
+            <Button
+                android:id="@+id/share_button"
+                style="@style/AccountSwitcherSignInButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:onClick="onMainButtonClicked"
+                android:text="@string/StatusUpdate" />
+
+	        <ProgressBar
+	            android:id="@+id/share_progress_indicator"
+	            style="?android:attr/progressBarStyleSmall"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_centerHorizontal="true"
+	            android:layout_centerVertical="true"
+	            android:visibility="gone" />
+            
+        </RelativeLayout>
 
     </RelativeLayout>
     
-    <FrameLayout android:id="@+id/fragment_panel"
+    <FrameLayout android:id="@+id/share_extension_fragment"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"
                  android:layout_gravity="top"/>
