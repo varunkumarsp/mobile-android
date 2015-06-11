@@ -34,6 +34,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -112,12 +113,14 @@ public class ComposeFragment extends Fragment {
         // TODO i18n
         Toast.makeText(getActivity(), "Cannot access the document to share.", Toast.LENGTH_LONG).show();
         getActivity().finish();
+        return;
       }
 
       if (info.documentSizeKb > 10000) {
         // TODO i18n
         Toast.makeText(getActivity(), "File too big (more than 10MB)", Toast.LENGTH_LONG).show();
         getActivity().finish();
+        return;
       }
       // Create a thumbnail of the attachment, works only for images
       Bitmap thumbnail = getThumbnail(info.documentData);
@@ -169,10 +172,17 @@ public class ComposeFragment extends Fragment {
   public void onResume() {
     setTouchListener();
     getShareActivity().toggleMainButtonType(R.attr.share_button_type_post);
+    getShareActivity().getOnlineIndicator().setVisibility(View.VISIBLE);
     ExoAccount selectedAccount = getShareActivity().getSelectedAccount();
     if (selectedAccount != null)
       tvAccount.setText(selectedAccount.accountName + " (" + selectedAccount.username + ")");
     super.onResume();
+  }
+
+  @Override
+  public void onDestroy() {
+    Log.d(COMPOSE_FRAGMENT, "Destroyed " + this);
+    super.onDestroy();
   }
 
   /*
@@ -210,8 +220,10 @@ public class ComposeFragment extends Fragment {
   }
 
   private void enableDisableMainButton() {
-    boolean postEmpty = "".equals(etPostMessage.getText().toString());
-    getShareActivity().enableDisableMainButton(!postEmpty);
+    if (isAdded()) {
+      boolean postEmpty = "".equals(etPostMessage.getText().toString());
+      getShareActivity().enableDisableMainButton(!postEmpty);
+    }
   }
 
 }

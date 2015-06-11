@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,13 +93,21 @@ public class SignInFragment extends Fragment {
     return layout;
   }
 
+  @Override
+  public void onDestroy() {
+    Log.d(SIGN_IN_FRAGMENT, "Destroyed " + this);
+    super.onDestroy();
+  }
+
   /*
    * GETTERS & SETTERS
    */
 
   private void enableDisableMainButton() {
-    boolean passwordEmpty = "".equals(etPassword.getText().toString());
-    getShareActivity().enableDisableMainButton(!passwordEmpty);
+    if (isAdded()) {
+      boolean passwordEmpty = "".equals(etPassword.getText().toString());
+      getShareActivity().enableDisableMainButton(!passwordEmpty);
+    }
   }
 
   public String getPassword() {

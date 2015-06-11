@@ -76,8 +76,6 @@ public class ShareActivity extends FragmentActivity {
 
   private static final int   SELECT_SHARE_DESTINATION = 11;
 
-  private ComposeFragment    composer;
-
   private ExoAccount         selectedAccount;
 
   private String             selectedSpace;
@@ -122,10 +120,10 @@ public class ShareActivity extends FragmentActivity {
       init();
 
       // Create and display the composer, aka ComposeFragment
-      composer = ComposeFragment.getFragment();
+      ComposeFragment composer = ComposeFragment.getFragment();
+      openFragment(composer, ComposeFragment.COMPOSE_FRAGMENT, Anim.NO_ANIM);
       composer.setPostMessage(postMessage);
       composer.setContentUri(contentUri);
-      openFragment(composer, ComposeFragment.COMPOSE_FRAGMENT, Anim.NO_ANIM);
     } else {
       // We're not supposed to reach this activity by anything else than an
       // ACTION_SEND intent
@@ -163,6 +161,7 @@ public class ShareActivity extends FragmentActivity {
     if (requestCode == SELECT_SHARE_DESTINATION) {
       if (resultCode == RESULT_OK) {
         selectedSpace = data.getStringExtra(SpaceSelectorActivity.SELECTED_DESTINATION);
+        ComposeFragment composer = ComposeFragment.getFragment();
         if (selectedSpace == null) {
           composer.setSpaceSelectorLabel(getResources().getString(R.string.Public));
         } else {
@@ -201,6 +200,7 @@ public class ShareActivity extends FragmentActivity {
   public void onBackPressed() {
     // Intercept the back button taps to display previous state with animation
     // If we're on the composer, call super to finish the activity
+    ComposeFragment composer = ComposeFragment.getFragment();
     if (composer.isAdded()) {
       super.onBackPressed();
     } else if (AccountsFragment.getFragment().isAdded()) {
@@ -210,6 +210,12 @@ public class ShareActivity extends FragmentActivity {
       // close the sign in fragment and reopen the accounts fragment
       openFragment(AccountsFragment.getFragment(), AccountsFragment.ACCOUNTS_FRAGMENT, Anim.FROM_LEFT);
     }
+  }
+
+  @Override
+  protected void onDestroy() {
+    Log.d(LOG_TAG, "Destroyed " + this);
+    super.onDestroy();
   }
 
   /*
@@ -228,6 +234,10 @@ public class ShareActivity extends FragmentActivity {
     return loadingIndicator;
   }
 
+  public ImageView getOnlineIndicator() {
+    return onlineIndicator;
+  }
+
   public Button getMainButton() {
     return mainButton;
   }
@@ -237,12 +247,12 @@ public class ShareActivity extends FragmentActivity {
       // switch from post => signin
       mainButton.setText(R.string.SignInInformation);
       mainButton.setTag(R.attr.share_button_type_signin);
-      mainButton.setVisibility(View.VISIBLE);
+      // mainButton.setVisibility(View.VISIBLE);
     } else if (type == R.attr.share_button_type_post) {
       // switch from signin => post
       mainButton.setText(R.string.StatusUpdate);
       mainButton.setTag(R.attr.share_button_type_post);
-      mainButton.setVisibility(View.VISIBLE);
+      // mainButton.setVisibility(View.VISIBLE);
     }
   }
 
@@ -277,6 +287,7 @@ public class ShareActivity extends FragmentActivity {
 
   public void onMainButtonClicked(View view) {
     int buttonType = ((Integer) mainButton.getTag()).intValue();
+    ComposeFragment composer = ComposeFragment.getFragment();
     // Tap on the Post button
     if (buttonType == R.attr.share_button_type_post) {
       if (selectedAccount == null || !online)
@@ -310,7 +321,7 @@ public class ShareActivity extends FragmentActivity {
 
   private void hideSoftKeyboard() {
     InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-    mgr.hideSoftInputFromWindow(composer.getEditText().getWindowToken(), 0);
+    mgr.hideSoftInputFromWindow(ComposeFragment.getFragment().getEditText().getWindowToken(), 0);
   }
 
   public void onSelectAccount(View v) {
@@ -330,10 +341,11 @@ public class ShareActivity extends FragmentActivity {
 
   public void onSelectSpace(View v) {
     // Called when the select space field is tapped
-    if (online) {
-      Intent spaceSelector = new Intent(this, SpaceSelectorActivity.class);
-      startActivityForResult(spaceSelector, SELECT_SHARE_DESTINATION);
-    }
+    Toast.makeText(this, "Not supported.", Toast.LENGTH_LONG).show();
+    // if (online) {
+    // Intent spaceSelector = new Intent(this, SpaceSelectorActivity.class);
+    // startActivityForResult(spaceSelector, SELECT_SHARE_DESTINATION);
+    // }
   }
 
   /*
@@ -396,11 +408,11 @@ public class ShareActivity extends FragmentActivity {
       } else {
         selectedAccount.password = "";
         online = false;
-        onlineIndicator.setColorFilter(Color.RED);
+        onlineIndicator.setColorFilter(Color.GRAY);
       }
       loadingIndicator.setVisibility(View.INVISIBLE);
       mainButton.setVisibility(View.VISIBLE);
-      enableDisableMainButton(online && !"".equals(composer.getPostMessage()));
+      enableDisableMainButton(online && !"".equals(ComposeFragment.getFragment().getPostMessage()));
     }
   }
 
