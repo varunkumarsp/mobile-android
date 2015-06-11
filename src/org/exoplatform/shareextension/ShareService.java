@@ -34,7 +34,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.InputStreamEntity;
-import org.exoplatform.R;
 import org.exoplatform.model.ExoAccount;
 import org.exoplatform.singleton.DocumentHelper;
 import org.exoplatform.singleton.SocialServiceHelper;
@@ -48,12 +47,10 @@ import org.exoplatform.utils.ExoDocumentUtils.DocumentInfo;
 import org.exoplatform.utils.TitleExtractor;
 
 import android.app.IntentService;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Created by The eXo Platform SAS.<br/>
@@ -372,14 +369,17 @@ public class ShareService extends IntentService {
   }
 
   private void startService() {
-    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
-    builder.setSmallIcon(R.drawable.application_icon);
-    builder.setContentTitle("Posting your message");
-    builder.setContentText("Your message will be posted shortly");
-    builder.setAutoCancel(true);
-    builder.setProgress(0, 0, true);
-    NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-    manager.notify(NOTIF_ID, builder.build());
+    // NotificationCompat.Builder builder = new
+    // NotificationCompat.Builder(getApplicationContext());
+    // builder.setSmallIcon(R.drawable.application_icon);
+    // builder.setContentTitle("Posting your message");
+    // builder.setContentText("Your message will be posted shortly");
+    // builder.setAutoCancel(true);
+    // builder.setProgress(0, 0, true);
+    // NotificationManager manager = (NotificationManager)
+    // getSystemService(Context.NOTIFICATION_SERVICE);
+    // manager.notify(NOTIF_ID, builder.build());
+    Toast.makeText(getApplicationContext(), "Your message will be posted shortly...", Toast.LENGTH_LONG).show();
   }
 
   private void stopService(ShareResult result) {
@@ -399,14 +399,17 @@ public class ShareService extends IntentService {
       break;
 
     }
-    NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
-    builder.setSmallIcon(R.drawable.application_icon);
-    builder.setContentTitle("Posting your message");
-    builder.setContentText(text);
-    builder.setAutoCancel(true);
-    builder.setProgress(0, 0, false);
-    NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-    manager.notify(NOTIF_ID, builder.build());
+    // NotificationCompat.Builder builder = new
+    // NotificationCompat.Builder(getApplicationContext());
+    // builder.setSmallIcon(R.drawable.application_icon);
+    // builder.setContentTitle("Posting your message");
+    // builder.setContentText(text);
+    // builder.setAutoCancel(true);
+    // builder.setProgress(0, 0, false);
+    // NotificationManager manager = (NotificationManager)
+    // getSystemService(Context.NOTIFICATION_SERVICE);
+    // manager.notify(NOTIF_ID, builder.build());
+    Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
   }
 
 }
